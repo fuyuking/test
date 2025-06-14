@@ -4,15 +4,15 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 import re
-
+ 
 # ======================================
-# ƒ‰[ƒƒ“DB‚Ìî•ñ‚ğƒXƒNƒŒƒCƒsƒ“ƒO‚·‚éŠÖ”
+# ãƒ©ãƒ¼ãƒ¡ãƒ³DBã®æƒ…å ±ã‚’ã‚¹ã‚¯ãƒ¬ã‚¤ãƒ”ãƒ³ã‚°ã™ã‚‹é–¢æ•°
 # ======================================
 def fetch_ramen_info(url):
     """
-    ƒ‰[ƒƒ“DB‚Ì“X•Üƒy[ƒWURL‚©‚ç
-    “X–¼AZŠ(—X•Ö”Ô†A“s“¹•{Œ§As‹æ’¬‘º“™)A“d˜b”Ô†A’è‹x“úAÀÈ”AƒAƒNƒZƒXA’“ÔêAŠJ“X“ú‚È‚Ç‚ğæ“¾‚µ
-    dict ‚Å•Ô‚·ƒTƒ“ƒvƒ‹ŠÖ”B
+    ãƒ©ãƒ¼ãƒ¡ãƒ³DBã®åº—èˆ—ãƒšãƒ¼ã‚¸URLã‹ã‚‰
+    åº—åã€ä½æ‰€(éƒµä¾¿ç•ªå·ã€éƒ½é“åºœçœŒã€å¸‚åŒºç”ºæ‘ç­‰)ã€é›»è©±ç•ªå·ã€å®šä¼‘æ—¥ã€åº§å¸­æ•°ã€ã‚¢ã‚¯ã‚»ã‚¹ã€é§è»Šå ´ã€é–‹åº—æ—¥ãªã©ã‚’å–å¾—ã—
+    dict ã§è¿”ã™ã‚µãƒ³ãƒ—ãƒ«é–¢æ•°ã€‚
     """
     try:
         response = requests.get(url)
@@ -20,49 +20,49 @@ def fetch_ramen_info(url):
         soup = BeautifulSoup(response.text, 'html.parser')
 
         # ------------------------------
-        # “X–¼ (—á: <h1 itemprop="name" class="p-reservation-shopName">ZZ</h1>)
+        # åº—å (ä¾‹: <h1 itemprop="name" class="p-reservation-shopName">ã€‡ã€‡</h1>)
         # ------------------------------
         name_tag = soup.select_one('h1[itemprop="name"]')
         shop_name = name_tag.get_text(strip=True) if name_tag else ""
 
         # ------------------------------
-        # ZŠ (—á: <p class="address">§123-4567<br>“Œ‹“sZZsc</p>)
+        # ä½æ‰€ (ä¾‹: <p class="address">ã€’123-4567<br>æ±äº¬éƒ½ã€‡ã€‡å¸‚â€¦</p>)
         # ------------------------------
         address_tag = soup.select_one('p.address')
         address_str = address_tag.get_text(separator=' ', strip=True) if address_tag else ""
-        # —á: address_str = "§958-0261 VŠƒŒ§‘ºãs¬Šâ“à33-1" ‚Ì‚æ‚¤‚È•¶š—ñ‚É‚È‚é‘z’è
+        # ä¾‹: address_str = "ã€’958-0261 æ–°æ½ŸçœŒæ‘ä¸Šå¸‚å°å²©å†…33-1" ã®ã‚ˆã†ãªæ–‡å­—åˆ—ã«ãªã‚‹æƒ³å®š
 
-        # —X•Ö”Ô†‚ğæ“¾ (u§xxxx-xxxxv‚ÌŒ`‚ğ‘z’è)
+        # éƒµä¾¿ç•ªå·ã‚’å–å¾— (ã€Œã€’xxxx-xxxxã€ã®å½¢ã‚’æƒ³å®š)
         postal_code = ""
-        if address_str.startswith("§"):
-            # u§v‚ğæ‚èœ‚¢‚Ä‚©‚çAÅ‰‚Ì‹ó”’‹æØ‚è(‚ ‚é‚¢‚Í‰üs)‚Ü‚Å‚ğ—X•Ö”Ô†‚Æ‚İ‚È‚·—á
-            # —á: "958-0261 VŠƒŒ§c" ‚ÌŒ`‚É‚È‚é‚Ì‚Å split() ‚Åæ‚èo‚µ
-            splitted = address_str[1:].split(maxsplit=1)  # [ "958-0261", "VŠƒŒ§‘ºãsc"]
+        if address_str.startswith("ã€’"):
+            # ã€Œã€’ã€ã‚’å–ã‚Šé™¤ã„ã¦ã‹ã‚‰ã€æœ€åˆã®ç©ºç™½åŒºåˆ‡ã‚Š(ã‚ã‚‹ã„ã¯æ”¹è¡Œ)ã¾ã§ã‚’éƒµä¾¿ç•ªå·ã¨ã¿ãªã™ä¾‹
+            # ä¾‹: "958-0261 æ–°æ½ŸçœŒâ€¦" ã®å½¢ã«ãªã‚‹ã®ã§ split() ã§å–ã‚Šå‡ºã—
+            splitted = address_str[1:].split(maxsplit=1)  # [ "958-0261", "æ–°æ½ŸçœŒæ‘ä¸Šå¸‚â€¦"]
             if splitted:
                 postal_code = splitted[0]  # "958-0261"
-            # address_str ‚Ìæ“ª•”•ª(§{—X•Ö”Ô†)‚ğæ‚èœ‚¢‚ÄÄ“x®Œ`
-            address_str = address_str.replace("§" + postal_code, "").strip()
+            # address_str ã®å…ˆé ­éƒ¨åˆ†(ã€’ï¼‹éƒµä¾¿ç•ªå·)ã‚’å–ã‚Šé™¤ã„ã¦å†åº¦æ•´å½¢
+            address_str = address_str.replace("ã€’" + postal_code, "").strip()
 
-        # ‚±‚±‚Å address_str —á: "VŠƒŒ§‘ºãs¬Šâ“à33-1" ‚È‚Ç
+        # ã“ã“ã§ address_str ä¾‹: "æ–°æ½ŸçœŒæ‘ä¸Šå¸‚å°å²©å†…33-1" ãªã©
         prefecture = ""
         city = ""
         street = ""
-        # ³‹K•\Œ»‚ğ—p‚¢‚Ä“s“¹•{Œ§‚ğ’Šo (“Œ‹“sA–kŠC“¹A‹“s•{A‘åã•{AXXŒ§)
-        match = re.search(r'(“Œ‹“s|–kŠC“¹|(?:‹“s|‘åã)•{|.{1,3}Œ§)(.*)', address_str)
+        # æ­£è¦è¡¨ç¾ã‚’ç”¨ã„ã¦éƒ½é“åºœçœŒã‚’æŠ½å‡º (æ±äº¬éƒ½ã€åŒ—æµ·é“ã€äº¬éƒ½åºœã€å¤§é˜ªåºœã€XXçœŒ)
+        match = re.search(r'(æ±äº¬éƒ½|åŒ—æµ·é“|(?:äº¬éƒ½|å¤§é˜ª)åºœ|.{1,3}çœŒ)(.*)', address_str)
         if match:
             prefecture = match.group(1).strip()
             remainder = match.group(2).strip()
-            # remainder —á: "‘ºãs¬Šâ“à33-1"
-            # ‚±‚±‚Å‚ÍAc‚è‚ğ‚»‚Ì‚Ü‚Ü city ‚É“ü‚ê‚Ä street ‚Í‹ó‚É‚·‚é—á
-            # À‰^—p‚Å‚Í×‚©‚­‹æEsE’¬E”Ô’n‚È‚Ç‚ğ‚³‚ç‚É³‹K•\Œ»‚ÅØ‚è•ª‚¯‚é‚±‚Æ‚ğŒŸ“¢
+            # remainder ä¾‹: "æ‘ä¸Šå¸‚å°å²©å†…33-1"
+            # ã“ã“ã§ã¯ã€æ®‹ã‚Šã‚’ãã®ã¾ã¾ city ã«å…¥ã‚Œã¦ street ã¯ç©ºã«ã™ã‚‹ä¾‹
+            # å®Ÿé‹ç”¨ã§ã¯ç´°ã‹ãåŒºãƒ»å¸‚ãƒ»ç”ºãƒ»ç•ªåœ°ãªã©ã‚’ã•ã‚‰ã«æ­£è¦è¡¨ç¾ã§åˆ‡ã‚Šåˆ†ã‘ã‚‹ã“ã¨ã‚’æ¤œè¨
             city = remainder
         else:
-            # ƒ}ƒbƒ`‚µ‚È‚¢ê‡‚Í‘S‘Ì‚ğ city ‚É‚·‚é—á
+            # ãƒãƒƒãƒã—ãªã„å ´åˆã¯å…¨ä½“ã‚’ city ã«ã™ã‚‹ä¾‹
             city = address_str
 
         # ------------------------------
-        # “d˜b”Ô†E’è‹x“úEÀÈ”EƒAƒNƒZƒXE’“ÔêEŠJ“X“ú‚È‚Ç
-        # (—á: <ul class="shop-detail-info"><li>“d˜b”Ô†: ZZ</li><li>’è‹x“ú: c</li></ul>)
+        # é›»è©±ç•ªå·ãƒ»å®šä¼‘æ—¥ãƒ»åº§å¸­æ•°ãƒ»ã‚¢ã‚¯ã‚»ã‚¹ãƒ»é§è»Šå ´ãƒ»é–‹åº—æ—¥ãªã©
+        # (ä¾‹: <ul class="shop-detail-info"><li>é›»è©±ç•ªå·: ã€‡ã€‡</li><li>å®šä¼‘æ—¥: â€¦</li></ul>)
         # ------------------------------
         phone = ""
         holiday = ""
@@ -74,33 +74,33 @@ def fetch_ramen_info(url):
         detail_list = soup.select("ul.shop-detail-info li")
         for li in detail_list:
             text = li.get_text(strip=True)
-            # text —á: "“d˜b”Ô†: 075-xxx-xxxx"
+            # text ä¾‹: "é›»è©±ç•ªå·: 075-xxx-xxxx"
             if ":" not in text:
                 continue
             label, value = text.split(":", 1)
             label = label.strip()
             value = value.strip()
-            if label == "“d˜b”Ô†":
+            if label == "é›»è©±ç•ªå·":
                 phone = value
-            elif label == "’è‹x“ú":
+            elif label == "å®šä¼‘æ—¥":
                 holiday = value
-            elif label == "ÀÈ”":
+            elif label == "åº§å¸­æ•°":
                 seats = value
-            elif label == "ƒAƒNƒZƒX":
+            elif label == "ã‚¢ã‚¯ã‚»ã‚¹":
                 access = value
-            elif label == "’“Ôê":
+            elif label == "é§è»Šå ´":
                 parking = value
-            elif label == "ŠJ“X“ú":
+            elif label == "é–‹åº—æ—¥":
                 open_date = value
-            # ‚»‚Ì‘¼u‰c‹ÆŠÔv‚È‚Ç‚ª‚ ‚ê‚Î“¯—l‚Éˆ—‰Â”\
+            # ãã®ä»–ã€Œå–¶æ¥­æ™‚é–“ã€ãªã©ãŒã‚ã‚Œã°åŒæ§˜ã«å‡¦ç†å¯èƒ½
 
-        # ‚Ü‚Æ‚ß‚Ä•Ô‚·
+        # ã¾ã¨ã‚ã¦è¿”ã™
         return {
             "shop_name": shop_name,
             "postal_code": postal_code,
             "prefecture": prefecture,
-            "city": city,      # ‚±‚Ì—á‚Å‚Í“s“¹•{Œ§ˆÈ~‚·‚×‚Ä‚ğ city ‚ÉŠi”[
-            "street": street,  # —]—Í‚ª‚ ‚ê‚Î‚³‚ç‚É•ªŠ„
+            "city": city,      # ã“ã®ä¾‹ã§ã¯éƒ½é“åºœçœŒä»¥é™ã™ã¹ã¦ã‚’ city ã«æ ¼ç´
+            "street": street,  # ä½™åŠ›ãŒã‚ã‚Œã°ã•ã‚‰ã«åˆ†å‰²
             "phone": phone,
             "holiday": holiday,
             "seats": seats,
@@ -110,36 +110,36 @@ def fetch_ramen_info(url):
         }
 
     except Exception as e:
-        print(f"î•ñ‚Ìæ“¾’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½: {e}")
-        # æ“¾¸”s‚Í‹ó‚Ì«‘‚ğ•Ô‚·
+        print(f"æƒ…å ±ã®å–å¾—ä¸­ã«ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸ: {e}")
+        # å–å¾—å¤±æ•—æ™‚ã¯ç©ºã®è¾æ›¸ã‚’è¿”ã™
         return {}
 
 # ======================================
-# Spreadsheet‚ğXV‚·‚éŠÖ”
+# Spreadsheetã‚’æ›´æ–°ã™ã‚‹é–¢æ•°
 # ======================================
 def update_spreadsheet():
     """
-    Google Spreadsheet ‚©‚ç A—ñ(URL) ‚ğ“Ç‚İ‚İA
-    ƒ‰[ƒƒ“DB‚©‚çî•ñ‚ğƒXƒNƒŒƒCƒsƒ“ƒO‚µ‚Ä C—ñˆÈ~‚É‘‚«‚ŞB
-    ƒV[ƒg‚Ì—ñ\¬‚ÍˆÈ‰º‚ğ‘z’è(1s–Ú‚Íƒwƒbƒ_):
-       A: ƒŠƒ“ƒN
-       B: d•¡(OK‚È‚Ç)
-       C: XV”NŒ“ú
-       D: “X–¼
-       E: —X•Ö”Ô†
-       F: “s“¹•{Œ§
-       G: ‹æs’¬‘º(”Ô’nŠÜ‚Ş)
-       H: (”Ô’n“™‚ğ‚³‚ç‚É•ªŠ„‚µ‚½‚¢ê‡—pE¡‰ñ‚Í–¢g—p)
-       I: “d˜b”Ô†
-       J: ’è‹x“ú
-       K: ÀÈ”
-       L: ƒAƒNƒZƒX
-       M: ’“Ôê
-       N: ƒI[ƒvƒ““ú
+    Google Spreadsheet ã‹ã‚‰ Aåˆ—(URL) ã‚’èª­ã¿è¾¼ã¿ã€
+    ãƒ©ãƒ¼ãƒ¡ãƒ³DBã‹ã‚‰æƒ…å ±ã‚’ã‚¹ã‚¯ãƒ¬ã‚¤ãƒ”ãƒ³ã‚°ã—ã¦ Cåˆ—ä»¥é™ã«æ›¸ãè¾¼ã‚€ã€‚
+    ã‚·ãƒ¼ãƒˆã®åˆ—æ§‹æˆã¯ä»¥ä¸‹ã‚’æƒ³å®š(1è¡Œç›®ã¯ãƒ˜ãƒƒãƒ€):
+       A: ãƒªãƒ³ã‚¯
+       B: é‡è¤‡(OKãªã©)
+       C: æ›´æ–°å¹´æœˆæ—¥
+       D: åº—å
+       E: éƒµä¾¿ç•ªå·
+       F: éƒ½é“åºœçœŒ
+       G: åŒºå¸‚ç”ºæ‘(ç•ªåœ°å«ã‚€)
+       H: (ç•ªåœ°ç­‰ã‚’ã•ã‚‰ã«åˆ†å‰²ã—ãŸã„å ´åˆç”¨ãƒ»ä»Šå›ã¯æœªä½¿ç”¨)
+       I: é›»è©±ç•ªå·
+       J: å®šä¼‘æ—¥
+       K: åº§å¸­æ•°
+       L: ã‚¢ã‚¯ã‚»ã‚¹
+       M: é§è»Šå ´
+       N: ã‚ªãƒ¼ãƒ—ãƒ³æ—¥
     """
 
     # ------------------------------
-    # 1. Google Spreadsheet ‚ÉÚ‘±
+    # 1. Google Spreadsheet ã«æ¥ç¶š
     # ------------------------------
     scopes = [
         'https://www.googleapis.com/auth/spreadsheets',
@@ -147,76 +147,76 @@ def update_spreadsheet():
     ]
 
     credentials = Credentials.from_service_account_file(
-        "PATH/TO/YOUR_SERVICE_ACCOUNT.json",  # ƒT[ƒrƒXƒAƒJƒEƒ“ƒgJSONƒtƒ@ƒCƒ‹‚ÌƒpƒX
+        "PATH/TO/YOUR_SERVICE_ACCOUNT.json",  # ã‚µãƒ¼ãƒ“ã‚¹ã‚¢ã‚«ã‚¦ãƒ³ãƒˆJSONãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ‘ã‚¹
         scopes=scopes
     )
     gc = gspread.authorize(credentials)
 
-    # Spreadsheet‚ÌURL
-    spreadsheet_url = "https://docs.google.com/spreadsheets/d/1MfMNO9MAwSFYFsn-jvaQxXyKnICx3sBORK7rqL0DdBM/edit?gid=1400209973#gid=1400209973"  # ÀÛ‚ÌURL‚ğw’è
+    # Spreadsheetã®URL
+    spreadsheet_url = "https://docs.google.com/spreadsheets/d/1MfMNO9MAwSFYFsn-jvaQxXyKnICx3sBORK7rqL0DdBM/edit?gid=1400209973#gid=1400209973"  # å®Ÿéš›ã®URLã‚’æŒ‡å®š
     spreadsheet = gc.open_by_url(spreadsheet_url)
 
-    # ƒV[ƒg–¼ (—áFuƒ‰[ƒƒ““Xv)
-    worksheet = spreadsheet.worksheet("ƒ‰[ƒƒ““X")
+    # ã‚·ãƒ¼ãƒˆå (ä¾‹ï¼šã€Œãƒ©ãƒ¼ãƒ¡ãƒ³åº—ã€)
+    worksheet = spreadsheet.worksheet("ãƒ©ãƒ¼ãƒ¡ãƒ³åº—")
 
     # ------------------------------
-    # 2. ƒV[ƒg‚Ìƒf[ƒ^‚ğæ“¾
+    # 2. ã‚·ãƒ¼ãƒˆã®ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—
     # ------------------------------
     all_data = worksheet.get_all_values()
     if not all_data:
-        print("ƒV[ƒg‚Éƒf[ƒ^‚ª‚ ‚è‚Ü‚¹‚ñB")
+        print("ã‚·ãƒ¼ãƒˆã«ãƒ‡ãƒ¼ã‚¿ãŒã‚ã‚Šã¾ã›ã‚“ã€‚")
         return
 
-    # A—ñFURL ‚ªŠÜ‚Ü‚ê‚é2s–ÚˆÈ~‚ğˆ—
+    # Aåˆ—ï¼šURL ãŒå«ã¾ã‚Œã‚‹2è¡Œç›®ä»¥é™ã‚’å‡¦ç†
     for row_idx, row_data in enumerate(all_data[1:], start=2):
-        url = row_data[0].strip()  # A—ñi0”Ô–Új‚ÉURL
+        url = row_data[0].strip()  # Aåˆ—ï¼ˆ0ç•ªç›®ï¼‰ã«URL
 
         if not url:
-            # URL‚ª‹ó‚È‚çƒXƒLƒbƒv
+            # URLãŒç©ºãªã‚‰ã‚¹ã‚­ãƒƒãƒ—
             continue
 
-        print(f"[{row_idx}s–Ú] URL({url})‚©‚çî•ñ‚ğæ“¾’†...")
+        print(f"[{row_idx}è¡Œç›®] URL({url})ã‹ã‚‰æƒ…å ±ã‚’å–å¾—ä¸­...")
         info = fetch_ramen_info(url)
 
         if not info:
-            print(f"æ“¾ƒGƒ‰[‚Ì‚½‚ßƒXƒLƒbƒv: {url}")
+            print(f"å–å¾—ã‚¨ãƒ©ãƒ¼ã®ãŸã‚ã‚¹ã‚­ãƒƒãƒ—: {url}")
             continue
 
         # ------------------------------
-        # 3. ƒXƒvƒŒƒbƒhƒV[ƒgXV
+        # 3. ã‚¹ãƒ—ãƒ¬ãƒƒãƒ‰ã‚·ãƒ¼ãƒˆæ›´æ–°
         # ------------------------------
         now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        # C—ñ: XV“ú
+        # Cåˆ—: æ›´æ–°æ—¥æ™‚
         worksheet.update_cell(row_idx, 3, now_str)
 
-        # D—ñ: “X–¼
+        # Dåˆ—: åº—å
         worksheet.update_cell(row_idx, 4, info["shop_name"])
-        # E—ñ: —X•Ö”Ô†
+        # Eåˆ—: éƒµä¾¿ç•ªå·
         worksheet.update_cell(row_idx, 5, info["postal_code"])
-        # F—ñ: “s“¹•{Œ§
+        # Fåˆ—: éƒ½é“åºœçœŒ
         worksheet.update_cell(row_idx, 6, info["prefecture"])
-        # G—ñ: ‹æs’¬‘º(–{ƒTƒ“ƒvƒ‹‚Å‚Í”Ô’nŠÜ‚Ş)
+        # Gåˆ—: åŒºå¸‚ç”ºæ‘(æœ¬ã‚µãƒ³ãƒ—ãƒ«ã§ã¯ç•ªåœ°å«ã‚€)
         worksheet.update_cell(row_idx, 7, info["city"])
-        # H—ñ: (street) ¡‰ñ‚Í‹ó‚Ì‚Ü‚Ü‚É‚µ‚Ä‚¨‚­—á
+        # Håˆ—: (street) ä»Šå›ã¯ç©ºã®ã¾ã¾ã«ã—ã¦ãŠãä¾‹
         worksheet.update_cell(row_idx, 8, info["street"])
-        # I—ñ: “d˜b”Ô†
+        # Iåˆ—: é›»è©±ç•ªå·
         worksheet.update_cell(row_idx, 9, info["phone"])
-        # J—ñ: ’è‹x“ú
+        # Jåˆ—: å®šä¼‘æ—¥
         worksheet.update_cell(row_idx, 10, info["holiday"])
-        # K—ñ: ÀÈ”
+        # Kåˆ—: åº§å¸­æ•°
         worksheet.update_cell(row_idx, 11, info["seats"])
-        # L—ñ: ƒAƒNƒZƒX
+        # Låˆ—: ã‚¢ã‚¯ã‚»ã‚¹
         worksheet.update_cell(row_idx, 12, info["access"])
-        # M—ñ: ’“Ôê
+        # Måˆ—: é§è»Šå ´
         worksheet.update_cell(row_idx, 13, info["parking"])
-        # N—ñ: ƒI[ƒvƒ““ú
+        # Nåˆ—: ã‚ªãƒ¼ãƒ—ãƒ³æ—¥
         worksheet.update_cell(row_idx, 14, info["open_date"])
 
-    print("Spreadsheet‚ÌXV‚ªŠ®—¹‚µ‚Ü‚µ‚½B")
+    print("Spreadsheetã®æ›´æ–°ãŒå®Œäº†ã—ã¾ã—ãŸã€‚")
 
 
 # ------------------------------
-# ƒXƒNƒŠƒvƒgÀs
+# ã‚¹ã‚¯ãƒªãƒ—ãƒˆå®Ÿè¡Œ
 # ------------------------------
 if __name__ == "__main__":
     update_spreadsheet()
